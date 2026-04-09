@@ -45,6 +45,24 @@
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
+		<dependency>
+			<groupId>43c948fb-024c-4176-a702-879840dedb82</groupId>
+			<artifactId>mule-plugin-database-system-api</artifactId>
+			<version>1.0.6</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>43c948fb-024c-4176-a702-879840dedb82</groupId>
+			<artifactId>mule-plugin-patient-process-api</artifactId>
+			<version>1.0.3</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>43c948fb-024c-4176-a702-879840dedb82</groupId>
+			<artifactId>mule-plugin-calendar-system-api</artifactId>
+			<version>1.0.8</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
 	</dependencies>
 
 	<repositories>

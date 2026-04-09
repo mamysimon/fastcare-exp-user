@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="put:\patients\(id):application\json:exp-user-api-config" doc:id="d45e35fc-2087-44f0-b21d-e0495bfd6c02" >
+		<set-variable value="#[attributes.uriParams.id]" doc:name="[patientId]" doc:id="e708af88-1dc2-4837-b707-a8a22a6577ea" variableName="patientId" />
+		<set-variable value="#[attributes.queryParams.role]" doc:name="[role]" doc:id="7a41ff0f-902b-41c1-bcc7-556abc8ea34a" variableName="role" />
+		<flow-ref doc:name="sub-put-patient" doc:id="681b5105-b065-404e-ac6c-d1a4c1080ed3" name="sub-put-patient"/>
+	</flow>
+	<flow name="get:\patients\(id)\calendar:exp-user-api-config" doc:id="46e4f830-97de-46e4-9386-24a13de4d981" >
+		<set-variable value="#[attributes.uriParams.id]" doc:name="[patientId]" doc:id="acb78731-640a-4d23-acb1-5d269d67dcaf" variableName="patientId" />
+		<set-variable value="#[attributes.queryParams.role]" doc:name="[role]" doc:id="5d32b950-88c9-4f6f-88de-0b0101a08c4c" variableName="role" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;attributes.queryParams.fromDate as Date default null]" doc:name="[fromDate]" doc:id="42678294-d940-458f-95c5-ca64fb0ee5e8" variableName="fromDate" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;attributes.queryParams.exactDate as Date default null]" doc:name="[exactDate]" doc:id="6c23378a-cfe8-4946-8702-c2befdacd96d" variableName="exactDate" />
+		<flow-ref doc:name="sub-get-calendar" doc:id="1fc88a13-2858-41d0-9d00-1a8333cef7ab" name="sub-get-calendar"/>
+	</flow>
+	<flow name="get:\patients\(id):exp-user-api-config" doc:id="71b6c266-d915-4695-bffb-83be4b14efdc" >
+		<set-variable value="#[attributes.uriParams.id]" doc:name="[patientId]" doc:id="4feba3ae-7d34-4e96-b43d-e59c4c28e71f" variableName="patientId"/>
+		<set-variable value="#[attributes.queryParams.role]" doc:name="[role]" doc:id="34043443-2960-4966-a0e6-5d8d2bfad205" variableName="role"/>
+		<flow-ref doc:name="sub-get-patient" doc:id="96208bc5-4b0b-4983-b12c-c65e1c538df8" name="sub-get-patient"/>
+	</flow>
+</mule>

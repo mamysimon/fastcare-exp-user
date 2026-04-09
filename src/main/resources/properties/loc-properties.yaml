@@ -4,8 +4,28 @@ autodiscoveryId: "000000"
 
 # Listener
 https:
-  port: "8081"
+  port: "8070"
 ################################
 
-system-name:
-  password: "${secure::system-name.password}"
+protocol: "HTTP"
+
+patient:
+  host: "localhost"
+  port: "8090"
+  base-path: "/api/v1"
+  client-id: ""
+  client-secret: ""
+
+database:
+  host: "localhost"
+  port: "8080"
+  base-path: "/api/v1"
+  client-id: ""
+  client-secret: ""
+  
+calendar:
+  host: "localhost"
+  port: "8082"
+  base-path: "/api/v1"
+  client-id: ""
+  client-secret: ""
