@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:calendar-system-api="http://www.mulesoft.org/schema/mule/calendar-system-api" xmlns:database-system-api="http://www.mulesoft.org/schema/mule/database-system-api"
-	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
-	xmlns:patient-process-api="http://www.mulesoft.org/schema/mule/patient-process-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:calendar-system-api="http://www.mulesoft.org/schema/mule/calendar-system-api"
+	xmlns:database-system-api="http://www.mulesoft.org/schema/mule/database-system-api"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:patient-process-api="http://www.mulesoft.org/schema/mule/patient-process-api" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/patient-process-api http://www.mulesoft.org/schema/mule/patient-process-api/current/mule-patient-process-api.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/database-system-api http://www.mulesoft.org/schema/mule/database-system-api/current/mule-database-system-api.xsd
-http://www.mulesoft.org/schema/mule/calendar-system-api http://www.mulesoft.org/schema/mule/calendar-system-api/current/mule-calendar-system-api.xsd">
+http://www.mulesoft.org/schema/mule/calendar-system-api http://www.mulesoft.org/schema/mule/calendar-system-api/current/mule-calendar-system-api.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<sub-flow name="sub-get-patient" doc:id="403f94e6-b2b2-4cbf-995d-b21b5e7a29e0" >
-		<patient-process-api:retrieve-patient doc:name="Retrieve [patient]" doc:id="1e9fb8be-b7b3-486c-b420-622675235b33" config-ref="Patient_Process_API_Config" role="#[vars.role]" id="#[vars.patientId]" target="patient" targetValue="#[payload.data]"/>
-		<set-payload value="#[vars.patient]" doc:name="Set Patient" doc:id="a09bdba6-b17e-4eff-9a6c-c288b8e2082f" />
+		<patient-process-api:retrieve-patient doc:name="prc-patient : Retrieve [patientDataModel]" doc:id="15df17ff-4ca1-4c58-b7f8-2226c9755968" config-ref="Patient_Process_API_Config" id="#[vars.patientId]" target="patientDataModel" targetValue="#[payload.data]"/>
+		<ee:transform doc:name="Filter [patientDataModelFiltered] by role" doc:id="fcce789c-5d4d-4a16-85ed-82503693fe88">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable resource="modules/PatientDataModelFiltered.dwl" variableName="patientDataModelFiltered" />
+			</ee:variables>
+		</ee:transform>
+		<logger level="DEBUG" doc:name="Debug filter patient data model by role" doc:id="d5d58085-16e0-437f-807b-887346831fb1" message='#[%dw 2.0&#10;output application/json indent=false&#10;---&#10;{&#10;    step: "Debug filter patient data model by role",&#10;    data: {&#10;        business: {&#10;        	role: vars.role&#10;        },&#10;        technical: {&#10;            PDMfiltered: vars.patientDataModelFiltered&#10;        }&#10;    }&#10;}]' category="${app.name}" />
+		<set-payload value="#[vars.patientDataModelFiltered]" doc:name="Set PatientDataModelFiltered" doc:id="a09bdba6-b17e-4eff-9a6c-c288b8e2082f" />
 	</sub-flow>
 	<sub-flow name="sub-put-patient" doc:id="ba9c7b60-5c01-4b2b-9e24-ecb67d3dcf4e" >
 		<validation:is-true doc:name="Role is doctor" doc:id="a95621c3-b6c1-4df7-886f-c65fcd4b183b" expression='#[ vars.role == "doctor" ]'>
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="PATIENT:FORBIDDEN" />
 		</validation:is-true>
-		<database-system-api:update-medical-record doc:name="Update medical record to [updateResponse]" doc:id="752df302-a46d-4d84-b69c-5e0260990084" config-ref="Database_System_API_Config" patient-id="#[vars.patientId]" targetValue="#[payload.data]" target="updateResponse"/>
-		<set-payload value="#[vars.updateResponse]" doc:name="Set Update Response" doc:id="81f97c93-aeb5-48bb-ba61-195bf0ace2d8" />
+		<database-system-api:update-medical-record doc:name="sys-database : Update medical record to [updateResponse]" doc:id="486678bc-d64c-4848-91cb-763b70934887" config-ref="Database_System_API_Config" patient-id="#[vars.patientId]" target="updateResponse" targetValue="#[payload.data]"/>
+		<set-payload value="#[vars.updateResponse]" doc:name="Set UpdateResponse" doc:id="81f97c93-aeb5-48bb-ba61-195bf0ace2d8" />
 	</sub-flow>
 	<sub-flow name="sub-get-calendar" doc:id="b8814a64-6b3b-4fa9-a7be-305889a60781" >
 		<validation:is-true doc:name="Role is patient" doc:id="ee5e139c-e437-4125-8ec4-34597fee36ee" expression='#[ vars.role == "patient" ]'>
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="PATIENT:FORBIDDEN" />
 		</validation:is-true>
-		<database-system-api:retrieve-patient doc:name="Retrieve [patient]" doc:id="30a87ab3-2028-4e12-b8c8-91683a4a2e80" config-ref="Database_System_API_Config" id="#[vars.patientId]" target="patient" targetValue="#[payload.data]"/>
-		<calendar-system-api:retrieve-patient doc:name="Retrieve [calendar]" doc:id="deeae073-b008-4205-bd4b-861c83539300" config-ref="Calendar_System_API_Config" from-date="#[vars.fromDate]" exact-date="#[vars.exactDate]" id="#[vars.patientId]" refresh-token="#[vars.patient.googleRefreshToken]" target="calendar" targetValue="#[payload.data]"/>
-		<set-payload value="#[vars.calendar]" doc:name="Set Calendar" doc:id="ee6bff5b-5b96-4e56-b7e3-d33f00a3f8c3" />
+		<validation:is-false doc:name="exactDate and fromDate are not null" doc:id="f917c696-311d-4c9c-9b04-54e11f1853dd" expression="#[ (vars.exactDate != null) and (vars.fromDate != null) ]">
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="CALENDAR:BAD_REQUEST" />
+		</validation:is-false>
+		<database-system-api:retrieve-patient doc:name="sys-database : Retrieve [patient]" doc:id="abff9584-d7f0-4249-9b33-0aca32c3f5c3" config-ref="Database_System_API_Config" id="#[vars.patientId]" target="patient" targetValue="#[payload.data]"/>
+		<calendar-system-api:retrieve-patient doc:name="sys-calendar : Retrieve [calendarDataModel]" doc:id="deeae073-b008-4205-bd4b-861c83539300" config-ref="Calendar_System_API_Config" from-date="#[vars.fromDate]" exact-date="#[vars.exactDate]" id="#[vars.patientId]" refresh-token="#[vars.patient.googleRefreshToken]" target="calendarDataModel" targetValue="#[payload.data]"/>
+		<set-payload value="#[vars.calendarDataModel]" doc:name="Set CalendarDataModel" doc:id="ee6bff5b-5b96-4e56-b7e3-d33f00a3f8c3" />
 	</sub-flow>
 </mule>
